@@ -20,31 +20,34 @@ function ProjectAdminPanel({ onProjectListChange }) {
   const fetchProjects = async () => {
     const data = await getProjects();
     setProjects(data);
-    if (onProjectListChange) onProjectListChange(data);
+    if (onProjectListChange) onProjectListChange(data); 
   };
 
   const handleAddProject = async () => {
     if (!newProjectName.trim()) return;
     await addProject({ name: newProjectName.trim() });
     setNewProjectName("");
-    fetchProjects();
+    fetchProjects(); 
   };
 
+  // Obsługa usuwania projektu — razem z jego historiami i zadaniami
   const handleDeleteProject = async (projectId) => {
     if (!window.confirm("Czy na pewno chcesz usunąć ten projekt wraz ze wszystkimi danymi?")) return;
 
     const stories = await getStoriesFromFirestore(projectId);
+
     for (const story of stories) {
+      // Dla każdej historii pobierz i usuń zadania
       const tasks = await getTasksForStory(projectId, story.id);
       for (const task of tasks) {
         await deleteTaskFromFirestore(task.id);
       }
+
       await deleteStoryFromFirestore(story.id);
     }
 
     await deleteProject(projectId);
 
-    // Odświeżenie całej strony po usunięciu projektu
     window.location.reload();
   };
 
@@ -52,6 +55,7 @@ function ProjectAdminPanel({ onProjectListChange }) {
     <div className="mb-8 p-4 border rounded bg-gray-100 dark:bg-gray-800 dark:text-white space-y-4">
       <h3 className="text-lg font-semibold">Zarządzanie projektami (tylko admin)</h3>
 
+      {/* Formularz dodawania nowego projektu */}
       <div className="flex gap-2">
         <input
           type="text"
@@ -68,9 +72,13 @@ function ProjectAdminPanel({ onProjectListChange }) {
         </button>
       </div>
 
+      {/* Lista istniejących projektów z opcją usunięcia */}
       <ul className="space-y-2">
         {projects.map((project) => (
-          <li key={project.id} className="flex justify-between items-center bg-white dark:bg-gray-700 p-2 rounded">
+          <li
+            key={project.id}
+            className="flex justify-between items-center bg-white dark:bg-gray-700 p-2 rounded"
+          >
             <span>{project.name}</span>
             <button
               onClick={() => handleDeleteProject(project.id)}

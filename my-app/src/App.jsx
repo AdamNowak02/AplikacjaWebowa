@@ -16,15 +16,20 @@ import {
 
 function App() {
   const [user, setUser] = useState(AuthManager.getUser());
+
   const [projects, setProjects] = useState([]);
   const [activeProject, setActiveProject] = useState(ProjectManager.getActiveProject());
+
   const [stories, setStories] = useState([]);
   const [editStory, setEditStory] = useState(null);
+
   const [showTasks, setShowTasks] = useState(null);
   const [showAddStoryForm, setShowAddStoryForm] = useState(false);
+
   const [darkMode, setDarkMode] = useState(localStorage.getItem("theme") === "dark");
   const [allUsers, setAllUsers] = useState([]);
 
+  
   const [newStory, setNewStory] = useState({
     name: "",
     description: "",
@@ -35,6 +40,7 @@ function App() {
     project: activeProject,
   });
 
+  // Tryb ciemny
   useEffect(() => {
     const root = document.documentElement;
     if (darkMode) {
@@ -46,6 +52,7 @@ function App() {
     }
   }, [darkMode]);
 
+  // Pobranie projektów z Firestore
   useEffect(() => {
     const fetchProjects = async () => {
       const data = await getProjects();
@@ -54,6 +61,7 @@ function App() {
     fetchProjects();
   }, []);
 
+  // Pobranie historyjek dla aktualnie wybranego projektu
   useEffect(() => {
     const loadStories = async () => {
       if (activeProject) {
@@ -72,12 +80,14 @@ function App() {
     if (user) fetchUsers();
   }, [user]);
 
+  // Zmiana wybranego projektu (select)
   const handleProjectChange = (e) => {
     const projectId = e.target.value;
     ProjectManager.setActiveProject(projectId);
     setActiveProject(projectId);
   };
 
+  // Zapis nowej lub edytowanej historyjki
   const saveStory = async () => {
     if (!activeProject) return;
 
@@ -101,6 +111,7 @@ function App() {
       setStories([...stories, saved]);
     }
 
+    // Reset formularza
     setNewStory({
       name: "",
       description: "",
@@ -114,12 +125,14 @@ function App() {
     setShowAddStoryForm(false);
   };
 
+  // Włączenie edycji istniejącej historyjki
   const editStoryHandler = (story) => {
     setEditStory(story);
     setNewStory({ ...story });
     setShowAddStoryForm(true);
   };
 
+  // Usunięcie historyjki wraz z jej zadaniami
   const deleteStory = async (id) => {
     const relatedTasks = await getTasksForStory(activeProject, id);
     for (const task of relatedTasks) {
@@ -132,6 +145,7 @@ function App() {
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8 bg-white dark:bg-gray-900 min-h-screen text-gray-900 dark:text-gray-100 transition-colors">
+      {/* Ekran logowania */}
       {!user ? (
         <div className="mb-6">
           <h2 className="text-lg font-semibold mb-4">Zaloguj się przez Google:</h2>
@@ -177,10 +191,12 @@ function App() {
         </div>
       )}
 
+      {/* Panel admina do zarządzania projektami */}
       {user?.role === "admin" && <ProjectAdminPanel onProjectListChange={setProjects} />}
 
       {user && (
         <>
+          {/* Wybór projektu */}
           <div className="mb-6">
             <label className="block mb-1 font-medium text-gray-700 dark:text-gray-200">Wybierz projekt:</label>
             <select
@@ -197,14 +213,17 @@ function App() {
             </select>
           </div>
 
+          {/* Komunikat jeśli projekt nie wybrany */}
           {!activeProject && (
             <p className="text-gray-500 dark:text-gray-400">Wybierz projekt, aby zobaczyć historyjki.</p>
           )}
 
+          {/* Główna zawartość — lista historyjek */}
           {activeProject && (
             <>
               <h2 className="text-xl font-bold mb-4">Historyjki dla projektu</h2>
 
+              {/* Przycisk pokazujący formularz dodawania */}
               {user.role !== "guest" && !showAddStoryForm && (
                 <button
                   className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 mb-4"
@@ -214,6 +233,7 @@ function App() {
                 </button>
               )}
 
+              {/* Formularz dodawania / edycji historyjki */}
               {user.role !== "guest" && showAddStoryForm && (
                 <div className="space-y-4 mb-8 bg-gray-100 dark:bg-gray-800 p-4 rounded shadow">
                   <input
@@ -247,6 +267,7 @@ function App() {
                 </div>
               )}
 
+              {/* Lista historyjek */}
               <h3 className="text-lg font-semibold mb-2">Lista historyjek</h3>
               <ul className="space-y-4">
                 {stories.map((story) => (
@@ -281,6 +302,7 @@ function App() {
                         Zadania
                       </button>
                     </div>
+                    {/* Sekcja zadań — tylko dla otwartej historyjki */}
                     {showTasks === story.id && (
                       <div className="mt-2">
                         <TaskManager storyId={story.id} allUsers={allUsers} user={user} />

@@ -15,10 +15,14 @@ const TASK_STATES = {
 
 function TaskManager({ storyId, allUsers, user }) {
   const [tasks, setTasks] = useState([]);
+
   const [showForm, setShowForm] = useState(false);
+
   const [detailsTaskId, setDetailsTaskId] = useState(null);
+
   const activeProject = ProjectManager.getActiveProject();
 
+  // Domyślny obiekt nowego zadania
   const defaultTask = {
     name: "",
     description: "",
@@ -34,6 +38,8 @@ function TaskManager({ storyId, allUsers, user }) {
   };
 
   const [newTask, setNewTask] = useState(defaultTask);
+
+  
   const [editTask, setEditTask] = useState(null);
 
   useEffect(() => {
@@ -44,6 +50,7 @@ function TaskManager({ storyId, allUsers, user }) {
     loadTasks();
   }, [storyId, activeProject]);
 
+  // Zapis zadania 
   const handleSaveTask = async () => {
     let updatedTasks = [...tasks];
 
@@ -67,6 +74,7 @@ function TaskManager({ storyId, allUsers, user }) {
     setShowForm(true);
   };
 
+  // Usunięcie zadania
   const handleDeleteTask = async (taskId) => {
     await deleteTaskFromFirestore(taskId);
     setTasks(tasks.filter((task) => task.id !== taskId));
@@ -81,6 +89,7 @@ function TaskManager({ storyId, allUsers, user }) {
     <div className="p-4 border rounded bg-gray-50 dark:bg-gray-800 dark:border-gray-600 space-y-6">
       <h4 className="text-xl font-semibold dark:text-white">Zadania dla historyjki</h4>
 
+      {/* Przycisk pokazujący formularz dodawania */}
       {user.role !== "guest" && !showForm && (
         <button
           onClick={() => {
@@ -94,6 +103,7 @@ function TaskManager({ storyId, allUsers, user }) {
         </button>
       )}
 
+      {/* Formularz dodawania / edycji zadania */}
       {user.role !== "guest" && showForm && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <input
@@ -155,6 +165,7 @@ function TaskManager({ storyId, allUsers, user }) {
             ))}
           </select>
 
+          {/* Przycisk zapisu i anulowania */}
           <div className="col-span-2 flex gap-2">
             <button
               onClick={handleSaveTask}
@@ -176,6 +187,7 @@ function TaskManager({ storyId, allUsers, user }) {
         </div>
       )}
 
+      {/* Lista zadań */}
       <ul className="space-y-4">
         {tasks.map((task) => (
           <li
@@ -194,6 +206,8 @@ function TaskManager({ storyId, allUsers, user }) {
                   Przydzielono: {getUserName(task.assignedUser)}
                 </p>
               </div>
+
+              {/* Przyciski akcji: edytuj, usuń, szczegóły */}
               <div className="flex gap-2">
                 {user.role !== "guest" && (
                   <>
@@ -220,6 +234,7 @@ function TaskManager({ storyId, allUsers, user }) {
               </div>
             </div>
 
+            {/* Szczegóły zadania */}
             {detailsTaskId === task.id && (
               <div className="mt-2 text-sm text-gray-700 dark:text-gray-200 space-y-1 border-t pt-2 dark:border-gray-600">
                 <p><strong>Opis:</strong> {task.description}</p>

@@ -1,4 +1,3 @@
-// authManager.js
 import { auth, db, googleProvider } from "./firebase";
 import { signInWithPopup, signOut } from "firebase/auth";
 import { doc, getDoc, setDoc } from "firebase/firestore";

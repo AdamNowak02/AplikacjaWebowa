@@ -1,12 +1,11 @@
 class ProjectManager {
-    static getActiveProject() {
-      return localStorage.getItem("activeProject") || null;
-    }
-  
-    static setActiveProject(projectId) {
-      localStorage.setItem("activeProject", projectId);
-    }
+  static getActiveProject() {
+    return localStorage.getItem("activeProject") || null;
   }
-  
-  export default ProjectManager;
-  
+
+  static setActiveProject(projectId) {
+    localStorage.setItem("activeProject", projectId);
+  }
+}
+
+export default ProjectManager;

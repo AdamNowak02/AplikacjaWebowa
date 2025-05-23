@@ -12,7 +12,6 @@ import {
   addDoc
 } from "firebase/firestore";
 
-// === PROJECTS ===
 
 export const getProjects = async () => {
   const snapshot = await getDocs(collection(db, "projects"));
@@ -28,7 +27,7 @@ export const deleteProject = async (projectId) => {
   await deleteDoc(doc(db, "projects", projectId));
 };
 
-// === STORIES ===
+
 
 export const getStoriesFromFirestore = async (projectId) => {
   const storiesRef = collection(db, "stories");
@@ -51,8 +50,8 @@ export const deleteStoryFromFirestore = async (storyId) => {
   await deleteDoc(doc(db, "stories", storyId));
 };
 
-// === TASKS ===
 
+// Pobiera wszystkie zadania przypisane do danej historii i projektu
 export const getTasksForStory = async (projectId, storyId) => {
   const tasksRef = collection(db, "tasks");
   const q = query(
@@ -78,7 +77,7 @@ export const deleteTaskFromFirestore = async (taskId) => {
   await deleteDoc(doc(db, "tasks", taskId));
 };
 
-// === USERS ===
+
 
 export const getAllUsersFromFirestore = async () => {
   const snapshot = await getDocs(collection(db, "users"));
